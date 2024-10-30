@@ -12,6 +12,9 @@ def parseDate(date_str):
             pass
     raise ValueError(f"could not parse date {date_str}")
 
+def cleanUUID(uuid_str):
+    return uuid_str.split("contacts-")[-1]
+
 parser = argparse.ArgumentParser(description='test')
 parser.add_argument('--contacts_url', default=os.environ.get('WEBDAV_CONTACTS_URL'))
 parser.add_argument('--calendar_url', default=os.environ.get('WEBDAV_CALENDAR_URL'))
@@ -64,11 +67,11 @@ for vcf_file in contacts_client.list('/'):
                 if bday.year > 1900:
                     age = round((bday_year - bday).days / 365.25)
 
-                summary = f"Birthday of {contact.fn.value}"
+                summary = f"{contact.fn.value} hat Geburstag"
                 if age:
-                    summary += f" ({age} years)"
+                    summary += f" ({age})"
 
-                uid = uuid.UUID(int=uuid.UUID(contact.uid.value).int + bday_year.year)
+                uid = uuid.UUID(int=uuid.UUID(cleanUUID(contact.uid.value)).int + bday_year.year)
 
                 calendar = vobject.iCalendar()
                 event = calendar.add('vevent')
